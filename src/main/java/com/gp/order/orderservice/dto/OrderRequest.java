@@ -6,13 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class OrderRequest {
 
     @NotEmpty(message = "Products cannot be empty")
-    private List<String> product;
+    private String product;
 
     @NotNull(message = "Quantity cannot be null")
     @Positive(message = "Quantity must be greater than 0")
