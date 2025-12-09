@@ -4,7 +4,7 @@ import com.gp.order.orderservice.client.CustomerClient;
 import com.gp.order.orderservice.dto.OrderRequest;
 import com.gp.order.orderservice.dto.OrderResponse;
 import com.gp.order.orderservice.entity.Order;
-import com.gp.order.orderservice.event.OrderCreatedEvent;
+import com.gp.order.orderservice.event.OrderEvent;
 import com.gp.order.orderservice.model.Customer;
 import com.gp.order.orderservice.repo.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,9 @@ public class OrderServiceImpl implements OrderService {
     private  CustomerClient customerClient;
 
 
-    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
 
-    public OrderServiceImpl(KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
+    public OrderServiceImpl(KafkaTemplate<String, OrderEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
 
     }
@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerClient.getCustomer(req.getCustomerId());
 
         Order order = Order.builder()
-                .products(req.getProduct())
+                .product(req.getProduct())
                 .quantity(req.getQuantity())
                 .amount(req.getAmount())
                 .customerId(req.getCustomerId())
@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
         // Build response
         OrderResponse res = new OrderResponse();
         res.setId(saved.getId());
-        res.setProduct(saved.getProducts());
+        res.setProduct(saved.getProduct());
         res.setQuantity(saved.getQuantity());
         res.setAmount(saved.getAmount());
         res.setCustomerId(saved.getCustomerId());
@@ -61,14 +61,14 @@ public class OrderServiceImpl implements OrderService {
 //200 per server //3 * 40 = 120*200= 24000
         Order savedOrder = orderRepo.save(order);
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
+        OrderEvent event = new OrderEvent(
                 savedOrder.getId(),
                 savedOrder.getCustomerId(),
-                savedOrder.getProducts(),
+                savedOrder.getProduct(),
                 savedOrder.getAmount()
         );
-
-        kafkaTemplate.send("order.created", event);
+        //System.out.println("Publishing OrderCreatedEvent for orderId:***********((((((((((((((((((( " + event.getOrderId());
+       // kafkaTemplate.send("order-created", event);
         return res;
     }
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderResponse res = new OrderResponse();
         res.setId(order.getId());
-        res.setProduct(order.getProducts());
+        res.setProduct(order.getProduct());
         res.setQuantity(order.getQuantity());
         res.setAmount(order.getAmount());
         res.setCustomerId(order.getCustomerId());

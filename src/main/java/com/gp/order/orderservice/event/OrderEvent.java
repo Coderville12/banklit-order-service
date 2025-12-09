@@ -2,7 +2,8 @@ package com.gp.order.orderservice.event;
 
 import lombok.*;
 
-import java.util.List;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -10,12 +11,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderCreatedEvent {
+public class OrderEvent implements Serializable {
 
-    private Long orderId;
-    private Long customerId;
-    private List<String> items;
-    private double totalPrice;
+    private String orderId;
+    private String customerId;
+    private String productName;
+    private Integer quantity;
+    private Double amount;
+    private String status;
+    private LocalDateTime orderDate;
+
+    public OrderEvent(Long id, Long customerId, String product, Double amount) {
+    }
 
 //    public OrderCreatedEvent() {}
 //
